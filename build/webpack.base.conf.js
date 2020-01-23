@@ -4,6 +4,7 @@ const fs = require('fs')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { CheckerPlugin } = require('awesome-typescript-loader')
 
 const PATHS = {
   src: path.join(__dirname, '../src'),
@@ -20,13 +21,17 @@ module.exports = {
     paths: PATHS
   },
   entry: {
-    kit: `${PATHS.src}/entry/kit.js`
+    entry: `${PATHS.src}/entry/entry.js`
   },
   output: {
-    filename: `${PATHS.assets}js/[name].js`,
+    filename: `${PATHS.assets}js/bundle.js`,
     path: PATHS.dist,
     publicPath: '/'
   },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx']
+  },
+  devtool: 'source-map',
   module: {
     rules: [{
       test: /\.pug$/,
@@ -35,6 +40,9 @@ module.exports = {
           use: ['pug-loader']
         }
       ]
+    }, {
+      test: /\.tsx?$/,
+      loader: 'awesome-typescript-loader'
     }, {
       test: /\.js$/,
       loader: 'babel-loader',
@@ -53,25 +61,6 @@ module.exports = {
         outputPath: `${PATHS.assets}img`,
         name: '[name].[ext]'
       }
-    }, {
-      test: /\.s[ac]ss$/i,
-      use: [
-        'style-loader',
-        MiniCssExtractPlugin.loader,
-        {
-          loader: 'css-loader',
-          options: { 
-            sourceMap: true,
-            url: false
-          }
-        }, {
-          loader: 'postcss-loader',
-          options: { sourceMap: true, config: { path: `./postcss.config.js` } }
-        }, {
-          loader: 'sass-loader',
-          options: { sourceMap: true }
-        }
-      ],
     }, {
       test: /\.less$/,
       use: [
@@ -110,7 +99,8 @@ module.exports = {
     }]
   },
   plugins: [
-
+    new CheckerPlugin(),
+    
     new webpack.ProvidePlugin({
       $: 'jquery',
       '$': 'jquery',
